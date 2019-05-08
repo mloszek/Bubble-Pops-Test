@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SoundsController : MonoBehaviour
 {    
-
     private static SoundsController instance;
     private static object _lock = new object();
     private static bool isShutingDown = false;
