@@ -60,14 +60,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\BallPuller.cs" />
+    <Compile Include="Assets\Scripts\BallController.cs" />
     <Compile Include="Assets\Scripts\DisablerScript.cs" />
     <Compile Include="Assets\Scripts\GenericBall.cs" />
     <Compile Include="Assets\Scripts\GridController.cs" />
     <Compile Include="Assets\Scripts\INode.cs" />
     <Compile Include="Assets\Scripts\Launcher.cs" />
-    <Compile Include="Assets\Scripts\MainController.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\ShotBallCollisionDetector.cs" />
     <Compile Include="Assets\Scripts\SoundsController.cs" />
     <Compile Include="Assets\Scripts\UIController.cs" />
     <Compile Include="Assets\Scripts\WallCollisionScript.cs" />

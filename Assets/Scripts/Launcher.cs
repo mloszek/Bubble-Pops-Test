@@ -5,23 +5,32 @@ using UnityEngine;
 public class Launcher : MonoBehaviour
 {
     [SerializeField]
-    private GameObject launchPivot;
+    private SpriteRenderer launchBall;
+    [SerializeField]
+    private SpriteRenderer spareBall;
     [SerializeField]
     private GameObject singleBall;
     [SerializeField]
     private LineRenderer lineRenderer;
+    [SerializeField]
+    private float shootingInterval;
+    [SerializeField]
+    private float shootingIntervalFromButton;
 
-    public bool isShootingPossible = false;
+    private Color colorToLaunch;
+
+    private bool isShootingPossible = false;
     private Vector3 tempPosition;
     private GameObject shootingBall;
-    private Coroutine setShootingCoroutine;
+    private Coroutine shootCoroutine;
+    private Color tempColor;
 
     private void Update()
     {
         if (Input.GetMouseButton(0))
         {
             tempPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (!IsPointerOutOfBounds(tempPosition))
+            if (!IsPointerOutOfBounds(tempPosition) && isShootingPossible)
             {
                 lineRenderer.SetPosition(1, tempPosition);
                 lineRenderer.enabled = true;
@@ -43,43 +52,82 @@ public class Launcher : MonoBehaviour
         }
     }
 
+    private void OnMouseDown()
+    {
+        SwapBalls();
+    }
+
+    private void SwapBalls()
+    {
+        SoundsController.Get().PlaySwapSound();
+        tempColor = launchBall.color;
+        launchBall.color = spareBall.color;
+        spareBall.color = tempColor;
+    }
+
     private void LaunchBall()
     {
         if (isShootingPossible)
         {
-            shootingBall = Instantiate(singleBall, launchPivot.transform.position, Quaternion.identity);
-            shootingBall.GetComponent<Rigidbody2D>().AddForce((tempPosition - launchPivot.transform.position).normalized * 2000, ForceMode2D.Force);
+            SoundsController.Get().PlayLaunchSound();
+            isShootingPossible = false;
+            SetShootingPossible(true);
+            shootingBall = Instantiate(singleBall, launchBall.transform.position, Quaternion.identity);
+            tempColor = launchBall.color;
+            shootingBall.GetComponent<SpriteRenderer>().color = tempColor;
+            shootingBall.GetComponent<Rigidbody2D>().AddForce((tempPosition - launchBall.transform.position).normalized * 1500, ForceMode2D.Force);
+            launchBall.color = spareBall.color;
+            spareBall.color = GridController.Get().GetAvailableColor();
         }
     }
 
     private bool IsPointerOutOfBounds(Vector3 position)
     {
-        if (position.x < -3.8f || position.x > 3.8f || position.y < -5.4f || position.y >= 5f)
+        if (position.x < -3.8f || position.x > 3.8f || (position.x > -1f && position.x < 1f && position.y < -4.5f) || position.y < -5.4f || position.y >= 5.3f)
         {
             return true;
         }
         return false;
     }
 
-    private IEnumerator SetShootingDelayed()
+    private IEnumerator DoShootDelayed(bool isFromButton = false)
     {
-        yield return new WaitForSecondsRealtime(1);
+        if (isFromButton)
+            yield return new WaitForSecondsRealtime(shootingIntervalFromButton);
+        else
+            yield return new WaitForSecondsRealtime(shootingInterval);
         isShootingPossible = true;
+    }
+
+    public void SetBallsReady()
+    {
+        launchBall.color = GridController.GetRandomColor();
+        spareBall.color = GridController.GetRandomColor();
     }
 
     public void SetShootingPossible(bool isPossible)
     {
         if (isPossible)
         {
-            if (setShootingCoroutine != null)
+            if (shootCoroutine != null)
             {
-                StopCoroutine(setShootingCoroutine);
-                setShootingCoroutine = null;
+                StopCoroutine(shootCoroutine);
+                shootCoroutine = null;
             }
-            setShootingCoroutine = StartCoroutine(SetShootingDelayed());
+            shootCoroutine = StartCoroutine(DoShootDelayed());
         }
         else
             isShootingPossible = isPossible;
+    }
+
+    public void SetShootingPossibleFromButton()
+    {
+        if (shootCoroutine != null)
+        {
+            StopCoroutine(shootCoroutine);
+            shootCoroutine = null;
+        }
+        shootCoroutine = StartCoroutine(DoShootDelayed(true));
     }
 
     public void SetShootingPossibleInstant(bool isPossible)

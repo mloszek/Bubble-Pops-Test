@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -11,9 +12,15 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private GameObject titleText;
     [SerializeField]
+    private Text scoreText;
+    [SerializeField]
     private GameObject backButton;
     [SerializeField]
     private GameObject exitButton;
+    [SerializeField]
+    private GameObject winScreen;
+    [SerializeField]
+    private GameObject looseScreen;
     [SerializeField]
     private float timeForSwitchingView;
 
@@ -23,6 +30,8 @@ public class UIController : MonoBehaviour
     private readonly Vector3 BKG_DEFAULT_POS = new Vector3(0, 0, 1);
     private readonly string SCROLL_OUT_ANIM_TRIG = "hide";
     private readonly string SCROLL_IN_ANIM_TRIG = "show";
+
+    private int currentScore;
 
     private void Start()
     {
@@ -37,6 +46,8 @@ public class UIController : MonoBehaviour
     {
         exitButton.SetActive(false);
         titleText.SetActive(false);
+        scoreText.text = "0";
+        scoreText.enabled = true;
 
         if (scrollOutUIcoroutine != null)
         {
@@ -59,6 +70,31 @@ public class UIController : MonoBehaviour
         }
 
         scrollINuIcoroutine = StartCoroutine(ScrollIn());
+    }
+
+    public void SetWinScreen()
+    {
+        exitButton.SetActive(false);
+        titleText.SetActive(false);
+        backButton.SetActive(false);
+        looseScreen.SetActive(false);
+        winScreen.SetActive(true);
+    }
+
+    public void SetLooseScreen()
+    {
+        exitButton.SetActive(false);
+        titleText.SetActive(false);
+        backButton.SetActive(false);
+        winScreen.SetActive(false);
+        looseScreen.SetActive(true);
+    }
+
+    public void SetScoreText(int value)
+    { 
+        currentScore = int.Parse(scoreText.text.ToString());
+        currentScore += value;
+        scoreText.text = currentScore.ToString(); // I know it's terrible + there should be an event for updating score
     }
 
     public void Exit()
